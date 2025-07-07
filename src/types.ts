@@ -8,6 +8,7 @@ export interface CalendlyConfig {
   authUrl: string;
   userUri?: string;
   organizationUri?: string;
+  email?: EmailConfig;
 }
 
 export interface OAuthTokenResponse {
@@ -49,4 +50,53 @@ export interface MCPToolResponse {
     type: 'text';
     text: string;
   }>;
+}
+
+// Email Configuration Types
+export interface EmailConfig {
+  provider: 'sendgrid' | 'resend' | 'nodemailer';
+  apiKey?: string;
+  fromEmail: string;
+  fromName: string;
+  smtpConfig?: NodemailerConfig;
+}
+
+export interface NodemailerConfig {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
+}
+
+export interface EmailInvitation {
+  to_email: string;
+  to_name?: string;
+  subject: string;
+  event_name: string;
+  event_duration: number;
+  available_days: string[];
+  booking_link: string;
+  custom_message?: string;
+  host_name: string;
+  host_email: string;
+}
+
+export interface SendEmailResponse {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+export interface CreateAndInviteParams {
+  event_name: string;
+  event_description?: string;
+  duration: number;
+  availability_days: string[];
+  time_slots?: string[];
+  invitee_email: string;
+  invitee_name?: string;
+  custom_message?: string;
 }

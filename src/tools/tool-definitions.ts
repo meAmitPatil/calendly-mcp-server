@@ -182,3 +182,95 @@ export const apiToolDefinitions = [
     },
   },
 ];
+
+export const emailToolDefinitions = [
+  {
+    name: 'send_booking_invitation',
+    description: 'Send a personalized booking invitation email to a recipient',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        to_email: {
+          type: 'string',
+          description: 'Email address of the recipient',
+        },
+        to_name: {
+          type: 'string',
+          description: 'Name of the recipient (optional)',
+        },
+        event_name: {
+          type: 'string',
+          description: 'Name of the event/meeting',
+        },
+        event_duration: {
+          type: 'number',
+          description: 'Duration of the event in minutes',
+        },
+        available_days: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Array of available days (e.g., ["Monday", "Tuesday"])',
+        },
+        booking_link: {
+          type: 'string',
+          description: 'Calendly booking link for the event',
+        },
+        custom_message: {
+          type: 'string',
+          description: 'Optional custom message to include in the invitation',
+        },
+      },
+      required: ['to_email', 'event_name', 'event_duration', 'available_days', 'booking_link'],
+    },
+  },
+  {
+    name: 'create_and_invite_workflow',
+    description: 'Complete workflow: Create event type, generate booking link, and send invitation email',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        event_name: {
+          type: 'string',
+          description: 'Name of the event/meeting to create',
+        },
+        event_description: {
+          type: 'string',
+          description: 'Description of the event (optional)',
+        },
+        duration: {
+          type: 'number',
+          description: 'Duration of the event in minutes',
+        },
+        availability_days: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Array of available days (e.g., ["Monday", "Tuesday"])',
+        },
+        time_slots: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Array of time slots (e.g., ["09:00-17:00"]) - optional',
+        },
+        invitee_email: {
+          type: 'string',
+          description: 'Email address of the person to invite',
+        },
+        invitee_name: {
+          type: 'string',
+          description: 'Name of the person to invite (optional)',
+        },
+        custom_message: {
+          type: 'string',
+          description: 'Optional custom message to include in the invitation',
+        },
+      },
+      required: ['event_name', 'duration', 'availability_days', 'invitee_email'],
+    },
+  },
+];

@@ -1,13 +1,21 @@
 # Calendly MCP Server
 
-A Model Context Protocol (MCP) server for integrating with the Calendly API. This server provides tools to interact with Calendly's scheduling platform, allowing you to retrieve user information, list events, manage invitees, and cancel events.
+A Model Context Protocol (MCP) server for integrating with the Calendly API. This server provides tools to interact with Calendly's scheduling platform, allowing you to retrieve user information, list events, manage invitees, cancel events, and **automatically send professional booking invitation emails**.
 
 ## Features
 
+### Core Calendly Integration
 - **User Information**: Get current authenticated user details
 - **Event Management**: List, retrieve, and cancel scheduled events
 - **Invitee Management**: List and manage event invitees
 - **Organization**: List organization memberships
+
+### 🆕 Email Integration & Automation
+- **Professional Email Invitations**: Send beautiful, branded booking invitation emails
+- **End-to-End Workflow**: Create event types and automatically send invitations
+- **Multiple Email Providers**: Support for SendGrid, Resend, and SMTP/Nodemailer
+- **Custom Templates**: Professional HTML email templates with your branding
+- **Personalization**: Automatic host details, meeting info, and booking links
 
 ## Installation
 
@@ -112,7 +120,9 @@ Add the server to your MCP client configuration (e.g., Claude Desktop):
 }
 ```
 
-## Available Tools
+## Available Tools (11 Total)
+
+*All tools work seamlessly through Claude Desktop or any MCP client*
 
 ### OAuth 2.0 Tools
 
@@ -183,6 +193,32 @@ List organization memberships for the authenticated user.
 - `email` (optional): Filter by email
 - `count` (optional): Number of memberships to return (default 20, max 100)
 
+### 🆕 Email Tools
+
+#### `send_booking_invitation`
+Send a professional booking invitation email to a recipient.
+
+**Parameters:**
+- `to_email` (required): Email address of the recipient
+- `to_name` (optional): Name of the recipient
+- `event_name` (required): Name of the event/meeting
+- `event_duration` (required): Duration in minutes
+- `available_days` (required): Array of available days (e.g., ["Monday", "Tuesday"])
+- `booking_link` (required): Calendly booking link
+- `custom_message` (optional): Personal message to include
+
+#### `create_and_invite_workflow`
+**🚀 Complete end-to-end automation:** Create event type, generate booking link, and send invitation email.
+
+**Parameters:**
+- `event_name` (required): Name of the event/meeting
+- `duration` (required): Duration in minutes
+- `availability_days` (required): Array of available days
+- `invitee_email` (required): Email address of person to invite
+- `invitee_name` (optional): Name of person to invite
+- `event_description` (optional): Description of the event
+- `custom_message` (optional): Personal message to include
+
 ## Usage Examples
 
 Once configured with your MCP client, you can use these tools:
@@ -215,6 +251,26 @@ list_event_invitees event_uuid="EVENT_UUID_HERE"
 
 # Cancel an event
 cancel_event event_uuid="EVENT_UUID_HERE" reason="Meeting no longer needed"
+```
+
+### 🆕 Email Examples:
+```
+# Complete end-to-end workflow (most popular)
+create_and_invite_workflow event_name="Client Onboarding" duration=30 availability_days=["Tuesday","Thursday"] invitee_email="client@company.com" custom_message="Looking forward to welcoming you!"
+
+# Send standalone invitation
+send_booking_invitation to_email="prospect@startup.com" event_name="Strategy Session" event_duration=45 available_days=["Monday","Wednesday"] booking_link="https://calendly.com/amit/strategy"
+
+# Bulk invitations with custom messages
+create_and_invite_workflow event_name="Team Standup" duration=15 availability_days=["Monday","Tuesday","Wednesday","Thursday","Friday"] invitee_email="team@company.com" custom_message="Daily sync to align on priorities"
+```
+
+### 🎯 Claude Desktop Examples:
+```
+# Natural language commands that work in Claude Desktop:
+"Create a 30-minute client onboarding call and invite john@company.com"
+"Send a booking invitation for a strategy session to sarah@startup.com"
+"Schedule a consultation call for Fridays and invite mike@agency.com"
 ```
 
 ## API Limitations
