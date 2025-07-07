@@ -40,7 +40,10 @@ export class CalendlyClient {
   async listEvents(params: ListEventsParams): Promise<any> {
     const urlParams = new URLSearchParams();
     
-    if (params.user_uri) urlParams.append('user', params.user_uri);
+    // Use provided user_uri or fall back to config default
+    const userUri = params.user_uri || this.config.userUri;
+    if (userUri) urlParams.append('user', userUri);
+    
     if (params.organization_uri) urlParams.append('organization', params.organization_uri);
     if (params.status) urlParams.append('status', params.status);
     if (params.max_start_time) urlParams.append('max_start_time', params.max_start_time);
@@ -73,7 +76,10 @@ export class CalendlyClient {
   async listOrganizationMemberships(params: ListOrganizationMembershipsParams): Promise<any> {
     const urlParams = new URLSearchParams();
     
-    if (params.user_uri) urlParams.append('user', params.user_uri);
+    // Use provided user_uri or fall back to config default
+    const userUri = params.user_uri || this.config.userUri;
+    if (userUri) urlParams.append('user', userUri);
+    
     if (params.organization_uri) urlParams.append('organization', params.organization_uri);
     if (params.email) urlParams.append('email', params.email);
     if (params.count) urlParams.append('count', params.count.toString());

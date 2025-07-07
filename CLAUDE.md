@@ -42,6 +42,30 @@ Required for testing:
 3. Test with MCP Inspector or Claude Desktop
 4. **IMPORTANT**: Always test authentication before committing
 5. Run `npm run build` again if there are TypeScript errors
+6. Use conventional commit messages (see Git Guidelines below)
+
+## Git Guidelines (Conventional Commits)
+Use this format: `<type>[optional scope]: <description>`
+
+**Types:**
+- `feat:` - New features
+- `fix:` - Bug fixes  
+- `docs:` - Documentation only
+- `refactor:` - Code restructuring
+- `test:` - Adding tests
+- `chore:` - Maintenance (dependencies, build, etc.)
+- `style:` - Code formatting
+- `ci:` - CI/CD changes
+
+**Examples:**
+- `feat: add event cancellation support`
+- `fix: handle OAuth token expiration`
+- `docs: update API authentication guide`
+- `refactor: extract tool definitions to separate file`
+- `test: add integration tests for OAuth flow`
+- `chore: update dependencies to latest versions`
+
+**Breaking Changes:** Add `!` after type: `feat!: redesign authentication API`
 
 ## MCP Server Details
 - **Transport**: STDIO (communicates via stdin/stdout)

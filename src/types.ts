@@ -6,6 +6,8 @@ export interface CalendlyConfig {
   clientSecret?: string;
   baseUrl: string;
   authUrl: string;
+  userUri?: string;
+  organizationUri?: string;
 }
 
 export interface OAuthTokenResponse {

@@ -24,7 +24,9 @@ class CalendlyMCPServer {
       clientId: process.env.CALENDLY_CLIENT_ID,
       clientSecret: process.env.CALENDLY_CLIENT_SECRET,
       baseUrl: 'https://api.calendly.com',
-      authUrl: 'https://auth.calendly.com'
+      authUrl: 'https://auth.calendly.com',
+      userUri: process.env.CALENDLY_USER_URI,
+      organizationUri: process.env.CALENDLY_ORGANIZATION_URI
     };
 
     this.client = new CalendlyClient(this.config);
