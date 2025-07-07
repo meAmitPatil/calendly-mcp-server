@@ -36,6 +36,10 @@ Required for testing:
 - `CALENDLY_CLIENT_ID` + `CALENDLY_CLIENT_SECRET`: OAuth credentials
 - `CALENDLY_ACCESS_TOKEN` + `CALENDLY_REFRESH_TOKEN`: OAuth tokens
 
+Optional (recommended for better performance):
+- `CALENDLY_USER_URI`: User URI for automatic defaults (e.g., `https://api.calendly.com/users/your_user_id`)
+- `CALENDLY_ORGANIZATION_URI`: Organization URI for automatic defaults
+
 ## Development Workflow
 1. Make changes to TypeScript files in `src/`
 2. Run `npm run build` to compile
@@ -67,6 +71,11 @@ Use this format: `<type>[optional scope]: <description>`
 
 **Breaking Changes:** Add `!` after type: `feat!: redesign authentication API`
 
+**IMPORTANT:** 
+- Do NOT include "Co-Authored-By: Claude" in commit messages
+- Do NOT include "🤖 Generated with [Claude Code]" footer in commit messages
+- Keep commit messages clean and professional
+
 ## MCP Server Details
 - **Transport**: STDIO (communicates via stdin/stdout)
 - **Tools Available**: 9 total (3 OAuth + 6 API tools)
@@ -81,6 +90,7 @@ Use this format: `<type>[optional scope]: <description>`
 
 ## Common Issues
 - **"No authentication token available"**: Set `CALENDLY_API_KEY` environment variable
+- **400 errors on `list_events`**: Set `CALENDLY_USER_URI` environment variable or provide `user_uri` parameter
 - **TypeScript errors**: Check that all imports use `.js` extensions
 - **404 errors**: Verify event UUIDs exist (use `list_events` first)
 - **Permission errors**: Ensure API key has correct permissions

@@ -60,6 +60,17 @@ export CALENDLY_ACCESS_TOKEN="your_access_token_here"
 export CALENDLY_REFRESH_TOKEN="your_refresh_token_here"
 ```
 
+### Optional User Context (Recommended)
+
+For better performance and automatic defaults, you can set user-specific URIs:
+
+```bash
+export CALENDLY_USER_URI="https://api.calendly.com/users/your_user_id"
+export CALENDLY_ORGANIZATION_URI="https://api.calendly.com/organizations/your_org_id"
+```
+
+These can be obtained by running `get_current_user` after authentication. When set, the server will automatically use these as defaults for API calls that require user context.
+
 ### MCP Configuration
 
 Add the server to your MCP client configuration (e.g., Claude Desktop):
@@ -72,7 +83,9 @@ Add the server to your MCP client configuration (e.g., Claude Desktop):
       "command": "node",
       "args": ["path/to/calendly-mcp-server/dist/index.js"],
       "env": {
-        "CALENDLY_API_KEY": "your_personal_access_token_here"
+        "CALENDLY_API_KEY": "your_personal_access_token_here",
+        "CALENDLY_USER_URI": "https://api.calendly.com/users/your_user_id",
+        "CALENDLY_ORGANIZATION_URI": "https://api.calendly.com/organizations/your_org_id"
       }
     }
   }
@@ -90,7 +103,9 @@ Add the server to your MCP client configuration (e.g., Claude Desktop):
         "CALENDLY_CLIENT_ID": "your_client_id_here",
         "CALENDLY_CLIENT_SECRET": "your_client_secret_here",
         "CALENDLY_ACCESS_TOKEN": "your_access_token_here",
-        "CALENDLY_REFRESH_TOKEN": "your_refresh_token_here"
+        "CALENDLY_REFRESH_TOKEN": "your_refresh_token_here",
+        "CALENDLY_USER_URI": "https://api.calendly.com/users/your_user_id",
+        "CALENDLY_ORGANIZATION_URI": "https://api.calendly.com/organizations/your_org_id"
       }
     }
   }
@@ -130,7 +145,7 @@ Get information about the currently authenticated user.
 List scheduled events with optional filtering.
 
 **Parameters:**
-- `user_uri` (optional): URI of the user whose events to list
+- `user_uri` (optional): URI of the user whose events to list (uses `CALENDLY_USER_URI` if not provided)
 - `organization_uri` (optional): URI of the organization to filter events
 - `status` (optional): Filter by status ("active" or "canceled")
 - `max_start_time` (optional): Maximum start time (ISO 8601 format)
@@ -163,7 +178,7 @@ Cancel a specific event.
 List organization memberships for the authenticated user.
 
 **Parameters:**
-- `user_uri` (optional): URI of the user
+- `user_uri` (optional): URI of the user (uses `CALENDLY_USER_URI` if not provided)
 - `organization_uri` (optional): URI of the organization
 - `email` (optional): Filter by email
 - `count` (optional): Number of memberships to return (default 20, max 100)
