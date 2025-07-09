@@ -227,7 +227,7 @@ Once configured with your MCP client, you can use these tools:
 
 Here's the MCP server in action with Claude Desktop:
 
-![Calendly MCP Server Demo](./Screenshot%202025-07-07%20at%207.45.14%20PM.png)
+![Calendly MCP Server Demo](./screenshot-demo.png)
 
 *Example: User asks "Show me my Calendly events" and gets formatted event details including date, time, duration, location, and invitee information.*
 
