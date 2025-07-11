@@ -21,7 +21,7 @@ A Model Context Protocol (MCP) server for integrating with the Calendly API. Thi
 
 1. Clone this repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/meAmitPatil/calendly-mcp-server.git
 cd calendly-mcp-server
 ```
 
