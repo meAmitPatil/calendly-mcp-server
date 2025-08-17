@@ -19,6 +19,13 @@ A Model Context Protocol (MCP) server for integrating with the Calendly API. Thi
 
 ## Installation
 
+### Option 1: NPX (Recommended)
+Run directly without installation:
+```bash
+npx calendly-mcp-server
+```
+
+### Option 2: Manual Installation
 1. Clone this repository:
 ```bash
 git clone https://github.com/meAmitPatil/calendly-mcp-server.git
@@ -83,7 +90,48 @@ These can be obtained by running `get_current_user` after authentication. When s
 
 Add the server to your MCP client configuration (e.g., Claude Desktop):
 
-#### For Personal Access Token:
+#### Option 1: Using NPX (Recommended)
+
+**For Personal Access Token:**
+```json
+{
+  "mcpServers": {
+    "calendly": {
+      "command": "npx",
+      "args": ["calendly-mcp-server"],
+      "env": {
+        "CALENDLY_API_KEY": "your_personal_access_token_here",
+        "CALENDLY_USER_URI": "https://api.calendly.com/users/your_user_id",
+        "CALENDLY_ORGANIZATION_URI": "https://api.calendly.com/organizations/your_org_id"
+      }
+    }
+  }
+}
+```
+
+**For OAuth 2.0:**
+```json
+{
+  "mcpServers": {
+    "calendly": {
+      "command": "npx",
+      "args": ["calendly-mcp-server"],
+      "env": {
+        "CALENDLY_CLIENT_ID": "your_client_id_here",
+        "CALENDLY_CLIENT_SECRET": "your_client_secret_here",
+        "CALENDLY_ACCESS_TOKEN": "your_access_token_here",
+        "CALENDLY_REFRESH_TOKEN": "your_refresh_token_here",
+        "CALENDLY_USER_URI": "https://api.calendly.com/users/your_user_id",
+        "CALENDLY_ORGANIZATION_URI": "https://api.calendly.com/organizations/your_org_id"
+      }
+    }
+  }
+}
+```
+
+#### Option 2: Using Local Installation
+
+**For Personal Access Token:**
 ```json
 {
   "mcpServers": {
@@ -100,7 +148,7 @@ Add the server to your MCP client configuration (e.g., Claude Desktop):
 }
 ```
 
-#### For OAuth 2.0:
+**For OAuth 2.0:**
 ```json
 {
   "mcpServers": {
@@ -287,7 +335,41 @@ create_and_invite_workflow event_name="Team Standup" duration=15 availability_da
 - Event rescheduling is not supported via API (only cancellation)
 - Some endpoints require paid Calendly subscriptions
 
+## Troubleshooting
+
+### NPX Issues
+- **"command not found: npx"**: Install Node.js 18+ which includes npx
+- **NPX downloads every time**: This is normal behavior; NPX caches packages for faster subsequent runs
+- **Permission errors**: Ensure you have write access to npm cache directory (`npm config get cache`)
+- **Network issues**: Use `npx --offline calendly-mcp-server` to use cached version
+
+### Authentication Issues
+- **"No authentication token available"**: Set `CALENDLY_API_KEY` environment variable
+- **400 errors on `list_events`**: Set `CALENDLY_USER_URI` environment variable or provide `user_uri` parameter
+- **Permission errors**: Ensure API key has correct permissions
+
+### General Issues
+- **TypeScript errors**: Ensure Node.js version 18+ is installed
+- **Module not found**: Run `npm run build` if using local installation
+- **Email delivery issues**: Check API keys, sender verification, and rate limits
+
 ## Development
+
+### Quick Start for Development
+
+```bash
+# Test with NPX (recommended for users)
+npx calendly-mcp-server
+
+# Test with MCP Inspector
+npx @modelcontextprotocol/inspector npx calendly-mcp-server
+
+# Clone for development
+git clone <repository-url>
+cd calendly-mcp-server
+npm install
+npm run build
+```
 
 ### Scripts
 
