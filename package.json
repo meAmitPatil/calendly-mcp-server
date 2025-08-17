@@ -24,7 +24,7 @@
     "typescript": "^5.0.0"
   },
   "bin": {
-    "calendly-mcp-server": "./bin/calendly-mcp-server.js"
+    "calendly-mcp-server": "bin/calendly-mcp-server.js"
   },
   "files": [
     "dist/**/*",
