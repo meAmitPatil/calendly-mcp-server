@@ -1,0 +1,63 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Development files
+.env*
+.vscode/
+.idea/
+
+# Build artifacts
+tsconfig.json
+tsconfig.*.json
+
+# Development dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Screenshots and assets (keep README assets)
+screenshot-*.png
+!screenshot-demo.png
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
