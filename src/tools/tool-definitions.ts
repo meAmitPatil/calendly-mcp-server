@@ -183,94 +183,141 @@ export const apiToolDefinitions = [
   },
 ];
 
-export const emailToolDefinitions = [
+export const schedulingToolDefinitions = [
   {
-    name: 'send_booking_invitation',
-    description: 'Send a personalized booking invitation email to a recipient',
+    name: 'list_event_types',
+    description: 'List available event types for scheduling meetings',
     inputSchema: {
       type: 'object',
       properties: {
-        to_email: {
+        user: {
           type: 'string',
-          description: 'Email address of the recipient',
+          description: 'URI of the user whose event types to list',
         },
-        to_name: {
+        organization: {
           type: 'string',
-          description: 'Name of the recipient (optional)',
+          description: 'URI of the organization to filter event types',
         },
-        event_name: {
-          type: 'string',
-          description: 'Name of the event/meeting',
-        },
-        event_duration: {
+        count: {
           type: 'number',
-          description: 'Duration of the event in minutes',
-        },
-        available_days: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          description: 'Array of available days (e.g., ["Monday", "Tuesday"])',
-        },
-        booking_link: {
-          type: 'string',
-          description: 'Calendly booking link for the event',
-        },
-        custom_message: {
-          type: 'string',
-          description: 'Optional custom message to include in the invitation',
+          description: 'Number of event types to return (default 20, max 100)',
         },
       },
-      required: ['to_email', 'event_name', 'event_duration', 'available_days', 'booking_link'],
+      required: [],
     },
   },
   {
-    name: 'create_and_invite_workflow',
-    description: 'Complete workflow: Create event type, generate booking link, and send invitation email',
+    name: 'get_event_type_availability',
+    description: 'Get available time slots for a specific event type',
     inputSchema: {
       type: 'object',
       properties: {
-        event_name: {
+        event_type: {
           type: 'string',
-          description: 'Name of the event/meeting to create',
+          description: 'URI of the event type to check availability for',
         },
-        event_description: {
+        start_time: {
           type: 'string',
-          description: 'Description of the event (optional)',
+          description: 'Start time for availability window (ISO 8601 format)',
         },
-        duration: {
-          type: 'number',
-          description: 'Duration of the event in minutes',
-        },
-        availability_days: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          description: 'Array of available days (e.g., ["Monday", "Tuesday"])',
-        },
-        time_slots: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          description: 'Array of time slots (e.g., ["09:00-17:00"]) - optional',
-        },
-        invitee_email: {
+        end_time: {
           type: 'string',
-          description: 'Email address of the person to invite',
+          description: 'End time for availability window (ISO 8601 format)',
+        },
+      },
+      required: ['event_type'],
+    },
+  },
+  {
+    name: 'schedule_event',
+    description: 'Schedule a meeting by creating an invitee for a specific event type and time',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        event_type: {
+          type: 'string',
+          description: 'URI of the event type to schedule',
+        },
+        start_time: {
+          type: 'string',
+          description: 'Start time for the event (ISO 8601 UTC format, e.g., 2025-10-02T18:30:00Z)',
         },
         invitee_name: {
           type: 'string',
-          description: 'Name of the person to invite (optional)',
+          description: 'Full name of the invitee (alternative to first_name/last_name)',
         },
-        custom_message: {
+        invitee_first_name: {
           type: 'string',
-          description: 'Optional custom message to include in the invitation',
+          description: 'First name of the invitee',
+        },
+        invitee_last_name: {
+          type: 'string',
+          description: 'Last name of the invitee',
+        },
+        invitee_email: {
+          type: 'string',
+          description: 'Email address of the invitee',
+        },
+        invitee_timezone: {
+          type: 'string',
+          description: 'Timezone of the invitee (e.g., America/New_York)',
+        },
+        invitee_phone: {
+          type: 'string',
+          description: 'Phone number for SMS reminders (E.164 format, e.g., +14155551234)',
+        },
+        location_kind: {
+          type: 'string',
+          description: 'Type of meeting location (e.g., zoom_conference, google_conference, physical, ask_invitee)',
+        },
+        location_details: {
+          type: 'string',
+          description: 'Location details (required for physical meetings or custom locations)',
+        },
+        event_guests: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Array of additional email addresses to include (max 10)',
+        },
+        questions_and_answers: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              question: {
+                type: 'string',
+                description: 'The question text (must match exactly)',
+              },
+              answer: {
+                type: 'string',
+                description: 'The answer to the question',
+              },
+              position: {
+                type: 'number',
+                description: 'Position of the question',
+              },
+            },
+            required: ['question', 'answer', 'position'],
+          },
+          description: 'Array of question and answer pairs for booking form',
+        },
+        utm_source: {
+          type: 'string',
+          description: 'UTM tracking parameter for source',
+        },
+        utm_campaign: {
+          type: 'string',
+          description: 'UTM tracking parameter for campaign',
+        },
+        utm_medium: {
+          type: 'string',
+          description: 'UTM tracking parameter for medium',
         },
       },
-      required: ['event_name', 'duration', 'availability_days', 'invitee_email'],
+      required: ['event_type', 'start_time', 'invitee_email', 'invitee_timezone'],
     },
   },
 ];
+

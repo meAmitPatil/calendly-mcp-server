@@ -8,7 +8,6 @@ export interface CalendlyConfig {
   authUrl: string;
   userUri?: string;
   organizationUri?: string;
-  email?: EmailConfig;
 }
 
 export interface OAuthTokenResponse {
@@ -52,51 +51,40 @@ export interface MCPToolResponse {
   }>;
 }
 
-// Email Configuration Types
-export interface EmailConfig {
-  provider: 'sendgrid' | 'resend' | 'nodemailer';
-  apiKey?: string;
-  fromEmail: string;
-  fromName: string;
-  smtpConfig?: NodemailerConfig;
+// Scheduling API Types
+export interface EventTypeAvailabilityParams {
+  event_type: string;
+  start_time?: string;
+  end_time?: string;
 }
 
-export interface NodemailerConfig {
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
+export interface ScheduleEventParams {
+  event_type: string;
+  start_time: string;
+  invitee: {
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    email: string;
+    timezone: string;
+    text_reminder_number?: string;
   };
-}
-
-export interface EmailInvitation {
-  to_email: string;
-  to_name?: string;
-  subject: string;
-  event_name: string;
-  event_duration: number;
-  available_days: string[];
-  booking_link: string;
-  custom_message?: string;
-  host_name: string;
-  host_email: string;
-}
-
-export interface SendEmailResponse {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export interface CreateAndInviteParams {
-  event_name: string;
-  event_description?: string;
-  duration: number;
-  availability_days: string[];
-  time_slots?: string[];
-  invitee_email: string;
-  invitee_name?: string;
-  custom_message?: string;
+  location?: {
+    kind: string;
+    location?: string;
+  };
+  questions_and_answers?: Array<{
+    question: string;
+    answer: string;
+    position: number;
+  }>;
+  tracking?: {
+    utm_campaign?: string | null;
+    utm_source?: string | null;
+    utm_medium?: string | null;
+    utm_content?: string | null;
+    utm_term?: string | null;
+    salesforce_uuid?: string | null;
+  };
+  event_guests?: string[];
 }
