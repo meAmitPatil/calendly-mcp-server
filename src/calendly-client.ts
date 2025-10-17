@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CalendlyConfig, OAuthTokenResponse, ListEventsParams, ListEventInviteesParams, ListOrganizationMembershipsParams, MCPToolResponse } from './types.js';
+import { CalendlyConfig, OAuthTokenResponse, ListEventsParams, ListEventInviteesParams, ListOrganizationMembershipsParams, MCPToolResponse, EventTypeAvailabilityParams, ScheduleEventParams } from './types.js';
 
 export class CalendlyClient {
   private config: CalendlyConfig;
@@ -163,5 +163,45 @@ export class CalendlyClient {
     this.config.refreshToken = tokenData.refresh_token;
 
     return tokenData;
+  }
+
+  // Scheduling API Methods
+  async listEventTypes(params?: { user?: string; organization?: string; count?: number }): Promise<any> {
+    const urlParams = new URLSearchParams();
+    
+    // Use provided user or fall back to config default
+    const userUri = params?.user || this.config.userUri;
+    if (userUri) urlParams.append('user', userUri);
+    
+    if (params?.organization) urlParams.append('organization', params.organization);
+    if (params?.count) urlParams.append('count', params.count.toString());
+
+    return await this.makeRequest(`/event_types?${urlParams.toString()}`);
+  }
+
+  async getEventType(eventTypeUuid: string): Promise<any> {
+    return await this.makeRequest(`/event_types/${eventTypeUuid}`);
+  }
+
+  async getEventTypeAvailability(params: EventTypeAvailabilityParams): Promise<any> {
+    const urlParams = new URLSearchParams();
+    urlParams.append('event_type', params.event_type);
+    
+    if (params.start_time) urlParams.append('start_time', params.start_time);
+    if (params.end_time) urlParams.append('end_time', params.end_time);
+
+    return await this.makeRequest(`/event_type_available_times?${urlParams.toString()}`);
+  }
+
+  async scheduleEvent(params: ScheduleEventParams): Promise<any> {
+    try {
+      return await this.makeRequest('/invitees', 'POST', params);
+    } catch (error: any) {
+      // Handle 403 error specifically for free plan users
+      if (error.response?.status === 403) {
+        throw new Error('Scheduling API requires a paid Calendly plan (Standard or higher). Please upgrade your Calendly subscription to access scheduling functionality.');
+      }
+      throw error;
+    }
   }
 }

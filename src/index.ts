@@ -3,22 +3,20 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { CalendlyConfig, EmailConfig } from './types.js';
+import { CalendlyConfig } from './types.js';
 import { CalendlyClient } from './calendly-client.js';
-import { EmailClient } from './email-client.js';
 import { OAuthTools } from './tools/oauth-tools.js';
 import { ApiTools } from './tools/api-tools.js';
-import { EmailTools } from './tools/email-tools.js';
-import { oauthToolDefinitions, apiToolDefinitions, emailToolDefinitions } from './tools/tool-definitions.js';
+import { SchedulingTools } from './tools/scheduling-tools.js';
+import { oauthToolDefinitions, apiToolDefinitions, schedulingToolDefinitions } from './tools/tool-definitions.js';
 
 class CalendlyMCPServer {
   private server: Server;
   private config: CalendlyConfig;
   private client: CalendlyClient;
-  private emailClient?: EmailClient;
   private oauthTools: OAuthTools;
   private apiTools: ApiTools;
-  private emailTools?: EmailTools;
+  private schedulingTools: SchedulingTools;
 
   constructor() {
     this.config = {
@@ -30,19 +28,13 @@ class CalendlyMCPServer {
       baseUrl: 'https://api.calendly.com',
       authUrl: 'https://auth.calendly.com',
       userUri: process.env.CALENDLY_USER_URI,
-      organizationUri: process.env.CALENDLY_ORGANIZATION_URI,
-      email: this.setupEmailConfig()
+      organizationUri: process.env.CALENDLY_ORGANIZATION_URI
     };
 
     this.client = new CalendlyClient(this.config);
     this.oauthTools = new OAuthTools(this.client);
     this.apiTools = new ApiTools(this.client);
-    
-    // Initialize email client if email configuration is available
-    if (this.config.email) {
-      this.emailClient = new EmailClient(this.config.email);
-      this.emailTools = new EmailTools(this.emailClient, this.client);
-    }
+    this.schedulingTools = new SchedulingTools(this.client);
 
     this.server = new Server(
       {
@@ -59,81 +51,13 @@ class CalendlyMCPServer {
     this.setupToolHandlers();
   }
 
-  private setupEmailConfig(): EmailConfig | undefined {
-    // Check for email configuration
-    const provider = process.env.EMAIL_PROVIDER as 'sendgrid' | 'resend' | 'nodemailer' | undefined;
-    const fromEmail = process.env.FROM_EMAIL;
-    const fromName = process.env.FROM_NAME || 'Calendly MCP Server';
-
-    if (!provider || !fromEmail) {
-      console.error('Email configuration not found. Email features will be disabled.');
-      console.error('To enable email features, set: EMAIL_PROVIDER, FROM_EMAIL, FROM_NAME');
-      return undefined;
-    }
-
-    const config: EmailConfig = {
-      provider,
-      fromEmail,
-      fromName
-    };
-
-    // Provider-specific configuration
-    switch (provider) {
-      case 'sendgrid':
-        config.apiKey = process.env.SENDGRID_API_KEY;
-        if (!config.apiKey) {
-          console.error('SENDGRID_API_KEY environment variable is required for SendGrid');
-          return undefined;
-        }
-        break;
-
-      case 'resend':
-        config.apiKey = process.env.RESEND_API_KEY;
-        if (!config.apiKey) {
-          console.error('RESEND_API_KEY environment variable is required for Resend');
-          return undefined;
-        }
-        break;
-
-      case 'nodemailer':
-        const smtpHost = process.env.SMTP_HOST;
-        const smtpUser = process.env.SMTP_USER;
-        const smtpPass = process.env.SMTP_PASS;
-        const smtpPort = parseInt(process.env.SMTP_PORT || '587');
-        const smtpSecure = process.env.SMTP_SECURE === 'true';
-
-        if (!smtpHost || !smtpUser || !smtpPass) {
-          console.error('SMTP configuration incomplete. Required: SMTP_HOST, SMTP_USER, SMTP_PASS');
-          return undefined;
-        }
-
-        config.smtpConfig = {
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpSecure,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass
-          }
-        };
-        break;
-
-      default:
-        console.error(`Unsupported email provider: ${provider}`);
-        return undefined;
-    }
-
-    console.error(`Email configured with ${provider} provider`);
-    return config;
-  }
-
   private setupToolHandlers() {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
         tools: [
           ...oauthToolDefinitions,
           ...apiToolDefinitions,
-          ...(this.emailTools ? emailToolDefinitions : []),
+          ...schedulingToolDefinitions,
         ],
       };
     });
@@ -175,18 +99,15 @@ class CalendlyMCPServer {
             result = await this.apiTools.listOrganizationMemberships(args);
             break;
           
-          // Email Tools
-          case 'send_booking_invitation':
-            if (!this.emailTools) {
-              throw new Error('Email functionality not configured. Please set up email environment variables.');
-            }
-            result = await this.emailTools.sendBookingInvitation(args as any);
+          // Scheduling Tools
+          case 'list_event_types':
+            result = await this.schedulingTools.listEventTypes(args);
             break;
-          case 'create_and_invite_workflow':
-            if (!this.emailTools) {
-              throw new Error('Email functionality not configured. Please set up email environment variables.');
-            }
-            result = await this.emailTools.createAndInviteWorkflow(args as any);
+          case 'get_event_type_availability':
+            result = await this.schedulingTools.getEventTypeAvailability(args as any);
+            break;
+          case 'schedule_event':
+            result = await this.schedulingTools.scheduleEvent(args);
             break;
           
           default:
