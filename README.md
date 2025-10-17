@@ -1,6 +1,6 @@
 # Calendly MCP Server
 
-A Model Context Protocol (MCP) server for integrating with the Calendly API. This server provides tools to interact with Calendly's scheduling platform, allowing you to retrieve user information, list events, manage invitees, cancel events, and **automatically send professional booking invitation emails**.
+A Model Context Protocol (MCP) server for integrating with the Calendly API. This server provides tools to interact with Calendly's scheduling platform, allowing you to retrieve user information, list events, manage invitees, cancel events, and **schedule meetings directly via the new Scheduling API**.
 
 ## Features
 
@@ -10,12 +10,12 @@ A Model Context Protocol (MCP) server for integrating with the Calendly API. Thi
 - **Invitee Management**: List and manage event invitees
 - **Organization**: List organization memberships
 
-### 🆕 Email Integration & Automation
-- **Professional Email Invitations**: Send beautiful, branded booking invitation emails
-- **End-to-End Workflow**: Create event types and automatically send invitations
-- **Multiple Email Providers**: Support for SendGrid, Resend, and SMTP/Nodemailer
-- **Custom Templates**: Professional HTML email templates with your branding
-- **Personalization**: Automatic host details, meeting info, and booking links
+### NEW: Scheduling API Integration
+- **Direct Meeting Scheduling**: Book meetings programmatically without redirects
+- **Event Type Discovery**: List available event types for scheduling
+- **Real-Time Availability**: Check available time slots for any event type
+- **Complete Booking Flow**: End-to-end scheduling with calendar sync and notifications
+- **Location Support**: Zoom, Google Meet, Teams, physical locations, and custom options
 
 ## Installation
 
@@ -168,7 +168,7 @@ Add the server to your MCP client configuration (e.g., Claude Desktop):
 }
 ```
 
-## Available Tools (11 Total)
+## Available Tools (12 Total)
 
 *All tools work seamlessly through Claude Desktop or any MCP client*
 
@@ -241,31 +241,43 @@ List organization memberships for the authenticated user.
 - `email` (optional): Filter by email
 - `count` (optional): Number of memberships to return (default 20, max 100)
 
-### 🆕 Email Tools
+### Scheduling API Tools
 
-#### `send_booking_invitation`
-Send a professional booking invitation email to a recipient.
-
-**Parameters:**
-- `to_email` (required): Email address of the recipient
-- `to_name` (optional): Name of the recipient
-- `event_name` (required): Name of the event/meeting
-- `event_duration` (required): Duration in minutes
-- `available_days` (required): Array of available days (e.g., ["Monday", "Tuesday"])
-- `booking_link` (required): Calendly booking link
-- `custom_message` (optional): Personal message to include
-
-#### `create_and_invite_workflow`
-**🚀 Complete end-to-end automation:** Create event type, generate booking link, and send invitation email.
+#### `list_event_types`
+List available event types for scheduling meetings.
 
 **Parameters:**
-- `event_name` (required): Name of the event/meeting
-- `duration` (required): Duration in minutes
-- `availability_days` (required): Array of available days
-- `invitee_email` (required): Email address of person to invite
-- `invitee_name` (optional): Name of person to invite
-- `event_description` (optional): Description of the event
-- `custom_message` (optional): Personal message to include
+- `user` (optional): URI of the user whose event types to list
+- `organization` (optional): URI of the organization to filter event types
+- `count` (optional): Number of event types to return (default 20, max 100)
+
+#### `get_event_type_availability`
+Get available time slots for a specific event type.
+
+**Parameters:**
+- `event_type` (required): URI of the event type to check availability for
+- `start_time` (optional): Start time for availability window (ISO 8601 format)
+- `end_time` (optional): End time for availability window (ISO 8601 format)
+
+#### `schedule_event`
+Schedule a meeting by creating an invitee for a specific event type and time.
+
+**Requirements:** Paid Calendly plan (Standard or higher)
+
+**Parameters:**
+- `event_type` (required): URI of the event type to schedule
+- `start_time` (required): Start time for the event (ISO 8601 UTC format)
+- `invitee_email` (required): Email address of the invitee
+- `invitee_timezone` (required): Timezone of the invitee (e.g., America/New_York)
+- `invitee_name` (optional): Full name of the invitee
+- `invitee_first_name` (optional): First name of the invitee
+- `invitee_last_name` (optional): Last name of the invitee
+- `invitee_phone` (optional): Phone number for SMS reminders (E.164 format)
+- `location_kind` (optional): Meeting location type (zoom_conference, google_conference, physical, etc.)
+- `location_details` (optional): Location details (required for physical meetings)
+- `event_guests` (optional): Array of additional email addresses (max 10)
+- `questions_and_answers` (optional): Array of question/answer pairs
+- `utm_source`, `utm_campaign`, `utm_medium` (optional): UTM tracking parameters
 
 ## Usage Examples
 
@@ -309,31 +321,33 @@ list_event_invitees event_uuid="EVENT_UUID_HERE"
 cancel_event event_uuid="EVENT_UUID_HERE" reason="Meeting no longer needed"
 ```
 
-### 🆕 Email Examples:
+### Scheduling API Examples:
 ```
-# Complete end-to-end workflow (most popular)
-create_and_invite_workflow event_name="Client Onboarding" duration=30 availability_days=["Tuesday","Thursday"] invitee_email="client@company.com" custom_message="Looking forward to welcoming you!"
+# List available event types
+list_event_types
 
-# Send standalone invitation
-send_booking_invitation to_email="prospect@startup.com" event_name="Strategy Session" event_duration=45 available_days=["Monday","Wednesday"] booking_link="https://calendly.com/amit/strategy"
+# Check availability for a specific event type
+get_event_type_availability event_type="https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA"
 
-# Bulk invitations with custom messages
-create_and_invite_workflow event_name="Team Standup" duration=15 availability_days=["Monday","Tuesday","Wednesday","Thursday","Friday"] invitee_email="team@company.com" custom_message="Daily sync to align on priorities"
+# Schedule a meeting (requires paid plan)
+schedule_event event_type="https://api.calendly.com/event_types/AAAAAAAAAAAAAAAA" start_time="2025-10-21T19:00:00Z" invitee_email="client@company.com" invitee_name="John Smith" invitee_timezone="America/New_York" location_kind="zoom_conference"
 ```
 
 ### 🎯 Claude Desktop Examples:
 ```
 # Natural language commands that work in Claude Desktop:
-"Create a 30-minute client onboarding call and invite john@company.com"
-"Send a booking invitation for a strategy session to sarah@startup.com"
-"Schedule a consultation call for Fridays and invite mike@agency.com"
+"Show me my event types"
+"Check availability for my 30-minute consultation next week"
+"Schedule a meeting with john@company.com for tomorrow at 2 PM"
+"Book a client onboarding call for Friday"
 ```
 
 ## API Limitations
 
-- The Calendly API does not currently support creating new events via API
-- Event rescheduling is not supported via API (only cancellation)
-- Some endpoints require paid Calendly subscriptions
+- **Scheduling API**: Requires paid Calendly plan (Standard or higher)
+- **Event Rescheduling**: Not supported via API (only cancellation)
+- **Event Type Creation**: Cannot create new event types via API
+- **Rate Limits**: Standard Calendly API rate limits apply
 
 ## Troubleshooting
 
@@ -348,10 +362,14 @@ create_and_invite_workflow event_name="Team Standup" duration=15 availability_da
 - **400 errors on `list_events`**: Set `CALENDLY_USER_URI` environment variable or provide `user_uri` parameter
 - **Permission errors**: Ensure API key has correct permissions
 
+### Scheduling API Issues
+- **403 Forbidden on `schedule_event`**: Requires paid Calendly plan (Standard or higher)
+- **400 Bad Request**: Check that event_type URI is valid and start_time is in correct UTC format
+- **Invalid time slot**: Use `get_event_type_availability` to verify the time slot is available
+
 ### General Issues
 - **TypeScript errors**: Ensure Node.js version 18+ is installed
 - **Module not found**: Run `npm run build` if using local installation
-- **Email delivery issues**: Check API keys, sender verification, and rate limits
 
 ## Development
 

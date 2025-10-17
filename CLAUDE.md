@@ -20,6 +20,7 @@ src/
 └── tools/
     ├── oauth-tools.ts          # OAuth authentication tools
     ├── api-tools.ts            # Calendly API tools
+    ├── scheduling-tools.ts     # Scheduling API tools
     └── tool-definitions.ts     # MCP tool schema definitions
 ```
 
@@ -41,30 +42,6 @@ src/
 - `CALENDLY_USER_URI`: User URI for automatic defaults (e.g., `https://api.calendly.com/users/your_user_id`)
 - `CALENDLY_ORGANIZATION_URI`: Organization URI for automatic defaults
 
-### Email Integration (Optional - for booking invitations)
-**Choose ONE email provider:**
-
-**Option 1: SendGrid**
-- `EMAIL_PROVIDER=sendgrid`
-- `SENDGRID_API_KEY`: Your SendGrid API key
-- `FROM_EMAIL`: Email address to send from (must be verified in SendGrid)
-- `FROM_NAME`: Display name for sender (e.g., "Amit Patil")
-
-**Option 2: Resend**
-- `EMAIL_PROVIDER=resend`
-- `RESEND_API_KEY`: Your Resend API key
-- `FROM_EMAIL`: Email address to send from (must be verified in Resend)
-- `FROM_NAME`: Display name for sender
-
-**Option 3: SMTP/Nodemailer (Gmail, Outlook, etc.)**
-- `EMAIL_PROVIDER=nodemailer`
-- `SMTP_HOST`: SMTP server (e.g., smtp.gmail.com)
-- `SMTP_PORT`: SMTP port (usually 587 or 465)
-- `SMTP_SECURE=false`: Use TLS (true for port 465, false for 587)
-- `SMTP_USER`: Your email address
-- `SMTP_PASS`: Your email password or app-specific password
-- `FROM_EMAIL`: Same as SMTP_USER
-- `FROM_NAME`: Display name for sender
 
 ## Development Workflow
 1. Make changes to TypeScript files in `src/`
@@ -104,18 +81,18 @@ Use this format: `<type>[optional scope]: <description>`
 
 ## MCP Server Details
 - **Transport**: STDIO (communicates via stdin/stdout)
-- **Tools Available**: 11 total (3 OAuth + 6 API + 2 Email tools)
+- **Tools Available**: 12 total (3 OAuth + 6 API + 3 Scheduling tools)
 - **Authentication**: Supports both Personal Access Tokens and OAuth 2.0
-- **Email Integration**: Supports SendGrid, Resend, and SMTP providers
+- **Scheduling API**: Direct meeting booking with paid Calendly plans
 - **Error Handling**: Wraps Calendly API errors in MCP error format
 
 ## Calendly API Limitations
-- Cannot create new events via API (use embed options)
+- Scheduling API requires paid Calendly plan (Standard or higher)
 - Cannot reschedule events (only cancel)
-- Some endpoints require paid Calendly subscriptions
+- Cannot create new event types via API
 - Access tokens expire after 2 hours (use refresh tokens)
 
-## Available Tools (11 Total)
+## Available Tools (12 Total)
 
 ### OAuth Tools (3)
 - `get_oauth_url` - Generate OAuth authorization URLs
@@ -130,41 +107,44 @@ Use this format: `<type>[optional scope]: <description>`
 - `cancel_event` - Cancel scheduled events
 - `list_organization_memberships` - List organization memberships
 
-### Email Tools (2) - **NEW!**
-- `send_booking_invitation` - Send professional booking invitation emails
-- `create_and_invite_workflow` - **Complete end-to-end automation:** Create event type + generate booking link + send email invitation
+### Scheduling Tools (3) - **NEW!**
+- `list_event_types` - List available event types for scheduling
+- `get_event_type_availability` - Get available time slots for event types
+- `schedule_event` - Book meetings directly (requires paid plan)
 
-## Email Integration Features
-- **Multiple Providers**: SendGrid, Resend, SMTP/Nodemailer support
-- **Professional Templates**: Beautiful HTML emails with branding
-- **Automatic Personalization**: Host details, meeting info, booking links
-- **Error Handling**: Graceful fallback when email not configured
-- **Production Ready**: Supports transactional email best practices
+## Scheduling API Features
+- **Direct Meeting Booking**: Schedule meetings programmatically without redirects
+- **Real-Time Availability**: Check available time slots for any event type
+- **Complete Integration**: Calendar sync, notifications, and management links
+- **Location Support**: Zoom, Google Meet, Teams, physical locations
+- **Paid Plan Requirement**: Standard or higher Calendly subscription needed
 
-## Example Email Workflows
+## Example Scheduling Workflows
 
-### Create and Invite (Most Popular)
+### Check Event Types and Schedule
 ```
-create_and_invite_workflow event_name="Client Consultation" duration=60 availability_days=["Monday","Wednesday","Friday"] invitee_email="client@company.com" custom_message="Looking forward to discussing your project needs!"
-```
+# List available event types
+list_event_types
 
-### Send Standalone Invitation
-```
-send_booking_invitation to_email="prospect@startup.com" event_name="Strategy Session" event_duration=45 available_days=["Tuesday","Thursday"] booking_link="https://calendly.com/amit/strategy"
+# Check availability for specific event type
+get_event_type_availability event_type="https://api.calendly.com/event_types/ABC123"
+
+# Schedule a meeting
+schedule_event event_type="https://api.calendly.com/event_types/ABC123" start_time="2025-10-21T19:00:00Z" invitee_email="client@company.com" invitee_name="John Smith" invitee_timezone="America/New_York"
 ```
 
 ## Common Issues
 - **"No authentication token available"**: Set `CALENDLY_API_KEY` environment variable
 - **400 errors on `list_events`**: Set `CALENDLY_USER_URI` environment variable or provide `user_uri` parameter
-- **"Email functionality not configured"**: Set email provider environment variables (see Email Integration section above)
+- **403 Forbidden on `schedule_event`**: Requires paid Calendly plan (Standard or higher)
 - **TypeScript errors**: Check that all imports use `.js` extensions
 - **404 errors**: Verify event UUIDs exist (use `list_events` first)
 - **Permission errors**: Ensure API key has correct permissions
-- **Email delivery issues**: Check API keys, sender verification, and rate limits
+- **Invalid time slot**: Use `get_event_type_availability` to verify availability first
 
 ## When Adding New Tools
 1. Add to `tool-definitions.ts` with proper schema
-2. Add method to appropriate tool class (`oauth-tools.ts` or `api-tools.ts`)
+2. Add method to appropriate tool class (`oauth-tools.ts`, `api-tools.ts`, or `scheduling-tools.ts`)
 3. Add case to switch statement in `index.ts`
 4. Update README with new tool documentation
 5. Test thoroughly with MCP Inspector
